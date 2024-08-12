@@ -1,35 +1,72 @@
 import { NextRequest, NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
-import isValidEmail from "@/helpers/checker";
+import {
+  isValidEmail,
+  isValidated,
+  isEmailVerified,
+  generateToken,
+} from "@/helpers/checker";
 import connectToMongoDb from "@/helpers/dbConnect";
-
-interface User {
-  email: string;
-  password: string;
-}
+import User from "@/models/User";
+import userDb from "@/dbModels/User";
 
 export async function POST(req: NextRequest) {
   try {
     const userData: User = await req.json();
-    if (!userData.email || !userData.password) {
-      return NextResponse.json("Invalid email address and password!");
+    const { email, password } = userData;
+
+    if (!email || !password) {
+      return NextResponse.json({
+        error: "Invalid email address and password!",
+      });
     }
 
-    if (!isValidEmail(userData.email)) {
-      return NextResponse.json("Invalid email address!");
+    if (!isValidEmail(email)) {
+      return NextResponse.json({
+        error: "Invalid email address!",
+      });
     }
 
-    const isConnected: boolean = await connectToMongoDb();
+    const isConnected = await connectToMongoDb();
     if (!isConnected) {
-      return NextResponse.json("Can not connect to mongoDb!");
+      return NextResponse.json({
+        error: "Can not connect to mongoDb!",
+      });
     }
-    return NextResponse.json("MongoDb connected!");
-  } 
-  catch (error) {
+
+    const isValid = await isValidated(userData);
+    if (!isValid) {
+      return NextResponse.json({
+        error: "Invalid User credentails",
+      });
+    }
+
+    const [isVerified, verifyToken] = await isEmailVerified(email);
+
+    if (isVerified) {
+      return NextResponse.json("You are logged in");
+    } else if (verifyToken) {
+      return NextResponse.json(verifyToken);
+    } else {
+      const token = await generateToken(email);
+      if (token) {
+        try {
+          await userDb.updateOne(
+            { email: email },
+            { $set: { verify_token: token } }
+          );
+        } catch (error) {
+          console.log(error);
+          return NextResponse.json("Can not insert token in database!");
+        }
+        return NextResponse.json(token);
+      } else {
+        return NextResponse.json({
+          error: "Can not generated token!",
+        });
+      }
+    }
+  } catch (error) {
     console.log(error);
     return NextResponse.json("Login Failed");
   }
-
-  // const jwtToken: string = jwt.sign(userData.email, process.env.TOKEN_SECRET!, { expiresIn: "1h" });
-  // return NextResponse.json(jwtToken);
 }
