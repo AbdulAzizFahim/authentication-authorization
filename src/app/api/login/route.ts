@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  isValidEmail,
-  isValidated,
-  isEmailVerified,
-  generateToken,
-} from "@/helpers/checker";
+import { generateHash } from "@/helpers/hashHelper";
+import { isValidEmail, checkUserLoginCredentials } from "@/helpers/loginValidator";
+import sendEmail from "@/helpers/emailSender";
 import connectToMongoDb from "@/helpers/dbConnect";
 import User from "@/models/User";
 import userDb from "@/dbModels/User";
+import EmailData from "@/models/EmailData";
+import UserLogin from "@/models/UserLoginInfo";
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,13 +15,13 @@ export async function POST(req: NextRequest) {
 
     if (!email || !password) {
       return NextResponse.json({
-        error: "Invalid email address and password!",
+        error: "Username and password is mandatory!",
       });
     }
 
     if (!isValidEmail(email)) {
       return NextResponse.json({
-        error: "Invalid email address!",
+        error: "Invalid email format!",
       });
     }
 
@@ -33,32 +32,36 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const isValid = await isValidated(userData);
-    if (!isValid) {
-      return NextResponse.json({
-        error: "Invalid User credentails",
-      });
-    }
+    const userLogin: UserLogin = await checkUserLoginCredentials(userData);
 
-    const [isVerified, verifyToken] = await isEmailVerified(email);
-
-    if (isVerified) {
+    if (userLogin.isEmailVerified) {
       return NextResponse.json("You are logged in");
-    } else if (verifyToken) {
-      return NextResponse.json(verifyToken);
+    } else if (!userLogin.isPasswordMatched) {
+      return NextResponse.json("Wrong credentials!");
     } else {
-      const token = await generateToken(email);
+      const token: string | null = userLogin.verificationToken ?? (await generateHash(email));
       if (token) {
         try {
-          await userDb.updateOne(
-            { email: email },
-            { $set: { verify_token: token } }
-          );
+          await userDb.updateOne({ email: email }, { $set: { verify_token: token } });
         } catch (error) {
           console.log(error);
           return NextResponse.json("Can not insert token in database!");
         }
-        return NextResponse.json(token);
+
+        const emailData: EmailData = {
+          to: email,
+          subject: "Email verification",
+          text: "Click the following link for email verfication.",
+          html: `Click the following link for email verfication.
+          <br> 
+          <a href="http://localhost:3000/verifyemail?token=${token}"> 
+            Click Me 
+          </a>
+          `,
+        };
+
+        await sendEmail(emailData);
+        return NextResponse.json("Verification email sent!");
       } else {
         return NextResponse.json({
           error: "Can not generated token!",
