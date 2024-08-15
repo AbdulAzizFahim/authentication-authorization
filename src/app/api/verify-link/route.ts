@@ -89,6 +89,10 @@ const verifyEmail = async (token: string): Promise<[boolean, string]> => {
     return [false, "Email verification link expired. Sent new verification email."];
   }
 
+  user.is_verified = true;
+  user.token_expiry_date = null;
+  await user.save();
+
   return [true, "Verification successful!"];
 };
 
@@ -124,6 +128,10 @@ const verifyForgetPassoword = async (token: string): Promise<[boolean, string]> 
     );
     return [false, "Forget password link expired. Sent new verification email."];
   }
+
+  user.is_verified = true;
+  user.token_expiry_date = null;
+  await user.save();
 
   return [true, "Verification successful!"];
 };

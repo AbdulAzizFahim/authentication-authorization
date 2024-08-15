@@ -45,7 +45,7 @@ const Page = () => {
         try {
             setStatus('Loading...');
             const response = await axios.get(link);
-            const [isVerified, message] = response.data;
+            const { isVerified, message } = response.data;
             if (isVerified) {
                 setShowButton(false);
             }
