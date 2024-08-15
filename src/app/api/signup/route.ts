@@ -3,10 +3,11 @@ import User from "@/models/User";
 import { isValidEmail } from "@/helpers/loginValidator";
 import { checkUserLoginCredentials } from "@/helpers/loginValidator";
 import UserDb from "@/dbModels/User";
-import { generateHash } from "@/helpers/hashHelper";
+import { generateHashToken } from "@/helpers/hashHelper";
 import EmailData from "@/models/EmailData";
 import sendEmail from "@/helpers/emailSender";
 import connectToMongoDb from "@/helpers/dbConnect";
+import moment from "moment";
 
 export async function POST(req: NextRequest) {
   const signupData: User = await req.json();
@@ -24,7 +25,7 @@ export async function POST(req: NextRequest) {
   const userInfo = await checkUserLoginCredentials(signupData);
 
   if (!userInfo.isUserFound) {
-    const hashedPassword = await generateHash(password);
+    const hashedPassword = await generateHashToken(password);
     const newUser = await new UserDb({
       email: email,
       password: hashedPassword,
@@ -32,19 +33,25 @@ export async function POST(req: NextRequest) {
     });
     const savedUser = await newUser.save();
 
-    const token = generateHash(email);
+    const token = await generateHashToken(email);
     const emailData: EmailData = {
       to: email,
       subject: "Signup email verification",
       html: `"Click the following link for email verfication."
       <br> 
-        <a href="http://localhost:3000/verifyemail?token=${token}">
+        <a href="http://localhost:3000/verify-link-page?token=${token}&type=verifyEmail">
             Click Me 
         </a>
         `,
     };
 
     await sendEmail(emailData);
+    const expiryDuration = parseInt(process.env.EMAIL_VERIFY_TOKEN_EXPIRY_HOUR!);
+    const expiryDateTime = moment().utc().add(expiryDuration, "hours").toDate();
+    await UserDb.updateOne(
+      { email: email },
+      { $set: { email_verify_token: token, token_expiry_date: expiryDateTime } }
+    );
 
     return NextResponse.json({
       message: "User created successfully",
@@ -52,19 +59,26 @@ export async function POST(req: NextRequest) {
       savedUser,
     });
   } else if (!userInfo.isEmailVerified) {
-    const token = generateHash(email);
+    const token = await generateHashToken(email);
     const emailData: EmailData = {
       to: email,
       subject: "Signup email verification",
       text: "Click the following link for email verfication.",
       html: `Click the following link for email verfication.
       <br> 
-        <a href="http://localhost:3000/verifyemail?token=${token}">
+        <a href="http://localhost:3000/verify-link-page?token=${token}&type=verifyEmail">
             Click Me 
         </a>
         `,
     };
     await sendEmail(emailData);
+    
+    const expiryDuration = parseInt(process.env.EMAIL_VERIFY_TOKEN_EXPIRY_HOUR!);
+    const expiryDateTime = moment().utc().add(expiryDuration, "hours").toDate();
+    await UserDb.updateOne(
+      { email: email },
+      { $set: { email_verify_token: token, token_expiry_date: expiryDateTime } }
+    );
 
     return NextResponse.json("Verification email sent!");
   } else {

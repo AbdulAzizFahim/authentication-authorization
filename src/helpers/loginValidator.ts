@@ -19,7 +19,7 @@ const checkUserLoginCredentials = async (userData: User): Promise<UserLogin> => 
     return new UserLogin(true, false);
   }
 
-  return new UserLogin(true, true, selectedUser.is_verified, selectedUser.verify_token);
+  return new UserLogin(true, true, selectedUser.is_verified, selectedUser.email_verify_token);
 };
 
 export { isValidEmail, checkUserLoginCredentials };

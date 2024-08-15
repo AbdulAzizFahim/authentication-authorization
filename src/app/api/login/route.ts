@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateHash } from "@/helpers/hashHelper";
+import { generateHashToken } from "@/helpers/hashHelper";
 import { isValidEmail, checkUserLoginCredentials } from "@/helpers/loginValidator";
 import sendEmail from "@/helpers/emailSender";
 import connectToMongoDb from "@/helpers/dbConnect";
@@ -7,6 +7,7 @@ import User from "@/models/User";
 import userDb from "@/dbModels/User";
 import EmailData from "@/models/EmailData";
 import UserLogin from "@/models/UserLoginInfo";
+import moment from "moment";
 
 export async function POST(req: NextRequest) {
   try {
@@ -39,10 +40,15 @@ export async function POST(req: NextRequest) {
     } else if (!userLogin.isPasswordMatched) {
       return NextResponse.json("Wrong credentials!");
     } else {
-      const token: string | null = userLogin.verificationToken ?? (await generateHash(email));
+      const token: string | null = userLogin.verificationToken ?? (await generateHashToken(email));
       if (token) {
         try {
-          await userDb.updateOne({ email: email }, { $set: { verify_token: token } });
+          const expiryDuration = parseInt(process.env.EMAIL_VERIFY_TOKEN_EXPIRY_HOUR!);
+          const expiryDateTime = moment().utc().add(expiryDuration, "hours").toDate();
+          await userDb.updateOne(
+            { email: email },
+            { $set: { email_verify_token: token, token_expiry_date: expiryDateTime } }
+          );
         } catch (error) {
           console.log(error);
           return NextResponse.json("Can not insert token in database!");
@@ -54,7 +60,7 @@ export async function POST(req: NextRequest) {
           text: "Click the following link for email verfication.",
           html: `Click the following link for email verfication.
           <br> 
-          <a href="http://localhost:3000/verifyemail?token=${token}"> 
+          <a href="http://localhost:3000/verify-link-page?token=${token}&type=verifyEmail"> 
             Click Me 
           </a>
           `,

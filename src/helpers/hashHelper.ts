@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-const generateHash = async (data: string): Promise<string> => {
+const generateHashToken = async (data: string): Promise<string> => {
   try {
     const rounds: number = 10;
     const hashedToken = await bcrypt.hash(data, rounds);
@@ -33,4 +33,4 @@ const generateJwtToken = async (userEmail: string): Promise<string | null> => {
   }
 };
 
-export { generateHash, comparePassword, generateJwtToken };
+export { generateHashToken, comparePassword, generateJwtToken };
