@@ -8,6 +8,7 @@ import userDb from "@/dbModels/User";
 import EmailData from "@/models/EmailData";
 import UserLogin from "@/models/UserLoginInfo";
 import moment from "moment";
+import { setAccessToken } from "@/helpers/tokenService";
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,30 +16,42 @@ export async function POST(req: NextRequest) {
     const { email, password } = userData;
 
     if (!email || !password) {
-      return NextResponse.json({
-        error: "Username and password is mandatory!",
-      });
+      return NextResponse.json(
+        { isVerified: false, message: "Username and password missing!" },
+        { status: 200 }
+      );
     }
 
     if (!isValidEmail(email)) {
-      return NextResponse.json({
-        error: "Invalid email format!",
-      });
+      return NextResponse.json(
+        { isVerified: false, message: "Please use a valid email!" },
+        { status: 200 }
+      );
     }
 
     const isConnected = await connectToMongoDb();
     if (!isConnected) {
-      return NextResponse.json({
-        error: "Can not connect to mongoDb!",
-      });
+      return NextResponse.json(
+        { isVerified: false, message: "Can not validate user!" },
+        { status: 200 }
+      );
     }
 
     const userLogin: UserLogin = await checkUserLoginCredentials(userData);
 
     if (userLogin.isEmailVerified) {
-      return NextResponse.json("You are logged in");
+      const response = NextResponse.json(
+        { isVerified: true, message: "User Authenticated" },
+        { status: 200 }
+      );
+
+      setAccessToken(email, response);
+      return response;
     } else if (!userLogin.isPasswordMatched) {
-      return NextResponse.json("Wrong credentials!");
+      return NextResponse.json(
+        { isVerified: false, message: "Invalid user credentials!" },
+        { status: 200 }
+      );
     } else {
       const token: string | null = userLogin.verificationToken ?? (await generateHashToken(email));
       if (token) {
@@ -51,7 +64,10 @@ export async function POST(req: NextRequest) {
           );
         } catch (error) {
           console.log(error);
-          return NextResponse.json("Can not insert token in database!");
+          return NextResponse.json(
+            { isVerified: false, message: "Can not validate user!" },
+            { status: 200 }
+          );
         }
 
         const emailData: EmailData = {
@@ -67,15 +83,21 @@ export async function POST(req: NextRequest) {
         };
 
         await sendEmail(emailData);
-        return NextResponse.json("Verification email sent!");
+        return NextResponse.json(
+          { isVerified: false, isTokenSent: true, message: "Can not validate user!" },
+          { status: 200 }
+        );
       } else {
-        return NextResponse.json({
-          error: "Can not generated token!",
-        });
+        return NextResponse.json(
+          { isVerified: false, message: "Can not validate user!" },
+          { status: 200 }
+        );
       }
     }
   } catch (error) {
-    console.log(error);
-    return NextResponse.json("Login Failed");
+    return NextResponse.json(
+      { isVerified: false, message: "Can not validate user!" },
+      { status: 200 }
+    );
   }
 }
