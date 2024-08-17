@@ -14,16 +14,21 @@ export async function POST(req: NextRequest) {
   const { email, password, username } = signupData;
 
   if (!email || !password || !username) {
-    return NextResponse.json({ error: "Email, username and password is mandatory!" });
+    return NextResponse.json(
+      { isAuthenticated: false, message: "Email, username and password is mandatory!" },
+      { status: 200 }
+    );
   }
 
   if (!isValidEmail(email)) {
-    return NextResponse.json("Invalid email format!");
+    return NextResponse.json(
+      { isAuthenticated: false, message: "Invalid email format!" },
+      { status: 200 }
+    );
   }
 
   connectToMongoDb();
   const userInfo = await checkUserLoginCredentials(signupData);
-
   if (!userInfo.isUserFound) {
     const hashedPassword = await generateHashToken(password);
     const newUser = await new UserDb({
@@ -53,11 +58,10 @@ export async function POST(req: NextRequest) {
       { $set: { email_verify_token: token, token_expiry_date: expiryDateTime } }
     );
 
-    return NextResponse.json({
-      message: "User created successfully",
-      success: true,
-      savedUser,
-    });
+    return NextResponse.json(
+      { isAuthenticated: true, message: "Signup completed" },
+      { status: 200 }
+    );
   } else if (!userInfo.isEmailVerified) {
     const token = await generateHashToken(email);
     const emailData: EmailData = {
@@ -72,7 +76,7 @@ export async function POST(req: NextRequest) {
         `,
     };
     await sendEmail(emailData);
-    
+
     const expiryDuration = parseInt(process.env.EMAIL_VERIFY_TOKEN_EXPIRY_HOUR!);
     const expiryDateTime = moment().utc().add(expiryDuration, "hours").toDate();
     await UserDb.updateOne(
@@ -80,8 +84,14 @@ export async function POST(req: NextRequest) {
       { $set: { email_verify_token: token, token_expiry_date: expiryDateTime } }
     );
 
-    return NextResponse.json("Verification email sent!");
+    return NextResponse.json(
+      { isAuthenticated: true, message: "Verification email sent! Please check your email" },
+      { status: 200 }
+    );
   } else {
-    return NextResponse.json({ error: "User is already registered!" });
+    return NextResponse.json(
+      { isAuthenticated: false, message: "User already registered!" },
+      { status: 200 }
+    );
   }
 }

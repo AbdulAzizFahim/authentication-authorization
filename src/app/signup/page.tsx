@@ -1,29 +1,110 @@
-import React from 'react'
+"use client";
+
+import React, { useState } from "react";
+import toast from "react-hot-toast";
+import { PropagateLoader } from "react-spinners";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 const Page = () => {
-    return (
-        <div className=" flex justify-center items-center h-screen w-screen bg-custom-green">
-            <div className="bg-slate-50 h-[55vh] w-[30vw] border gap-4 rounded-xl">
-                <div className='flex flex-col justify-start w-[100%]'>
-                    <div className='flex justify-center items-center my-9'>
-                        <label className='font-sans font-bol text-3xl'>Login</label>
-                    </div>
-                    <div className='flex flex-col items-start w-[90%]'>
-                        <input className=' border-2 border-gray-200 text-start w-full h-[5vh] mx-6 my-2 p-2 rounded-md shadow-sm' type='text' placeholder='Enter your Username' />
-                        <input className=' border-2 border-gray-200 text-start w-full h-[5vh] mx-6 my-2 p-2 rounded-md shadow-sm' type='text' placeholder='Enter your Email' />
-                        <input className=' border-2 border-gray-200 text-start w-full h-[5vh] mx-6 my-2 p-2 rounded-md shadow-sm' type='password' placeholder='Enter your Password' />
-                        <input className=' border-2 border-gray-200 text-start w-full h-[5vh] mx-6 my-2 p-2 rounded-md shadow-sm' type='password' placeholder='Confirm your Password' />
-                    </div>
-                    <div className='flex justify-start'>
-                        <button className='bg-custom-green w-[90%] h-[5vh] mx-6 rounded-md shadow-md text-slate-200 cursor-pointer'>Login</button>
-                    </div>
-                    <div className='flex justify-center mt-6 w-[90%]'>
-                        <label>Already have an account? <span className='text-custom-green cursor-pointer'>Signup</span></label>
-                    </div>
-                </div>
-            </div>
-        </div>
-    )
-}
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [click, setClick] = useState(false);
+  const router = useRouter();
 
-export default Page
+  const handleClick = async () => {
+    setClick(true);
+    if (password !== confirmPassword) {
+      toast.error("The password and confirm password fields must match");
+      setClick(false);
+      return;
+    }
+
+    try {
+      const link: string = "/api/signup";
+      const data = {
+        email: email,
+        password: password,
+        username: username,
+      };
+      const response = await axios.post(link, data);
+      const { isAuthenticated, message } = response.data;
+      if (isAuthenticated) {
+        toast.success(message);
+      } else {
+        toast.error(message);
+      }
+    } catch (error) {
+      toast.error("Can not signup user!");
+    } finally {
+      setClick(false);
+    }
+  };
+
+  return (
+    <div className=" flex justify-center items-center h-screen w-screen bg-custom-green">
+      <div className="bg-slate-50 h-[55vh] w-[30vw] border gap-4 rounded-xl">
+        <div className="flex flex-col justify-start w-[100%]">
+          <div className="flex justify-center items-center my-9">
+            <label className="font-sans font-bol text-3xl">Login</label>
+          </div>
+          <div className="flex flex-col items-start w-[90%]">
+            <input
+              className=" border-2 border-gray-200 text-start w-full h-[5vh] mx-6 my-2 p-2 rounded-md shadow-sm"
+              type="text"
+              placeholder="Enter your Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+            <input
+              className=" border-2 border-gray-200 text-start w-full h-[5vh] mx-6 my-2 p-2 rounded-md shadow-sm"
+              type="text"
+              placeholder="Enter your Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <input
+              className=" border-2 border-gray-200 text-start w-full h-[5vh] mx-6 my-2 p-2 rounded-md shadow-sm"
+              type="password"
+              placeholder="Enter your Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <input
+              className=" border-2 border-gray-200 text-start w-full h-[5vh] mx-6 my-2 p-2 rounded-md shadow-sm"
+              type="password"
+              placeholder="Confirm your Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
+          </div>
+          <div className="flex justify-start">
+            <button
+              className="bg-custom-green w-[90%] h-[5vh] mx-6 rounded-md shadow-md text-slate-200 cursor-pointer"
+              onClick={handleClick}
+            >
+              {click ? <PropagateLoader size={15} color={"#7dd87d"} /> : "Signup"}
+            </button>
+          </div>
+          <div className="flex justify-center mt-6 w-[90%]">
+            <label>
+              Already have an account?{" "}
+              <span
+                className="text-custom-green cursor-pointer"
+                onClick={() => {
+                  router.push("/login");
+                }}
+              >
+                Signup
+              </span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Page;
