@@ -9,22 +9,22 @@ import { useRouter } from "next/navigation";
 const Page = () => {
   const [click, setClick] = useState(false);
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [emailSent, setEmailSent] = useState(false);
   const router = useRouter();
 
   const handleClick = async () => {
     setClick(true);
-    const data = { email: email, password: password };
+    const data = { email: email };
     try {
-      const response = await axios.post("/api/login", data);
+      const response = await axios.post("/api/forget-password", data);
       if (!response) {
         toast.error("Can not connect to server");
       }
-      const { isVerified, isTokenSent, message } = response.data;
-      if (isVerified) {
-        toast.success(message);
+      const { isLinkSent, hasError } = response.data;
+      if (hasError) {
+        toast.error("Unable to send reset password email. Please try again later.");
       } else {
-        toast.error(message);
+        setEmailSent(true);
       }
     } catch (error) {
       console.log(error);
@@ -34,13 +34,20 @@ const Page = () => {
     }
   };
 
+  const emailSentDiv = (
+    <div className="w-[90%] h-[5vh] bg-bg-notice-green text-start mx-6 my-2 p-2 rounded-md shadow-sm border-2">
+      We have e-mailed your password reset link if the user exists!
+    </div>
+  );
+
   return (
     <div className=" flex justify-center items-center h-screen w-screen bg-custom-green">
-      <div className="bg-slate-50 h-[45vh] w-[30vw] border gap-4 rounded-xl">
+      <div className="bg-slate-50  min-h-[30vh] w-[30vw] border gap-4 rounded-xl">
         <div className="flex flex-col justify-start w-[100%]">
           <div className="flex justify-center items-center my-9">
-            <label className="font-sans font-bol text-3xl">Login</label>
+            <label className="font-sans font-bol text-3xl">Forget Password</label>
           </div>
+          {emailSent ? emailSentDiv : ""}
           <div className="flex flex-col items-start w-[90%]">
             <input
               className=" border-2 border-gray-200 text-start w-full h-[5vh] mx-6 my-2 p-2 rounded-md shadow-sm"
@@ -49,33 +56,16 @@ const Page = () => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your Email"
             />
-            <input
-              className=" border-2 border-gray-200 text-start w-full h-[5vh] mx-6 my-2 p-2 rounded-md shadow-sm"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your Password"
-            />
-          </div>
-          <div className="mx-7 my-2">
-            <label
-              className=" text-custom-green cursor-pointer"
-              onClick={() => {
-                router.push("/forget-password");
-              }}
-            >
-              Forgot password?
-            </label>
           </div>
           <div className="flex justify-start">
             <button
               className="bg-custom-green w-[90%] h-[5vh] flex justify-center items-center mx-6 rounded-md shadow-md text-slate-200 cursor-pointer"
               onClick={handleClick}
             >
-              {click ? <PropagateLoader size={15} color={"#7dd87d"} /> : "Login"}
+              {click ? <PropagateLoader size={15} color={"#7dd87d"} /> : "Submit"}
             </button>
           </div>
-          <div className="flex justify-center mt-6 w-[90%]">
+          <div className="flex justify-center my-6 w-[90%]">
             <label>
               Don't have an account?{" "}
               <span

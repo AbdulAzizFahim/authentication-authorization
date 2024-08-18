@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
       password: hashedPassword,
       username: username,
     });
-    const savedUser = await newUser.save();
+    await newUser.save();
 
     const token = await generateHashToken(email);
     const emailData: EmailData = {

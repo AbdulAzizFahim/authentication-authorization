@@ -2,7 +2,6 @@ import User from "@/models/User";
 import UserLogin from "@/models/UserLoginInfo";
 import UserDb from "@/dbModels/User";
 import { comparePassword } from "./hashHelper";
-import { Document, Model } from "mongoose";
 
 const isValidEmail = (email: string): boolean => {
   const emailRegex: RegExp = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;

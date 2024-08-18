@@ -90,7 +90,7 @@ const Page = () => {
           </div>
           <div className="flex justify-center mt-6 w-[90%]">
             <label>
-              Already have an account?{" "}
+              Already have an account?
               <span
                 className="text-custom-green cursor-pointer"
                 onClick={() => {

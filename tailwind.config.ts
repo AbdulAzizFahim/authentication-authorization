@@ -10,6 +10,7 @@ const config: Config = {
     extend: {
       colors: {
         "custom-green": "#009578",
+        "bg-notice-green": "#E1FAEA",
       },
     },
   },
