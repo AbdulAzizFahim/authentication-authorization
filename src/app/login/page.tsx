@@ -5,6 +5,8 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import PropagateLoader from "react-spinners/PropagateLoader";
 import { useRouter } from "next/navigation";
+import UsernameIcon from "../components/usernameIcon";
+import PasswordIcon from "../components/passwordIcon";
 
 const Page = () => {
   const [click, setClick] = useState(false);
@@ -42,20 +44,26 @@ const Page = () => {
             <label className="font-sans font-bol text-3xl">Login</label>
           </div>
           <div className="flex flex-col items-start w-[90%]">
-            <input
-              className=" border-2 border-gray-200 text-start w-full h-[5vh] mx-6 my-2 p-2 rounded-md shadow-sm"
-              type="text"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your Email"
-            />
-            <input
-              className=" border-2 border-gray-200 text-start w-full h-[5vh] mx-6 my-2 p-2 rounded-md shadow-sm"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your Password"
-            />
+            <div className="flex items-start mx-6 w-full">
+              <UsernameIcon />
+              <input
+                className="border-2 border-gray-200 text-start w-full h-[5vh] my-2 p-2 rounded-r-md shadow-sm"
+                type="text"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your Email"
+              />
+            </div>
+            <div className="flex items-start mx-6 w-full">
+              <PasswordIcon />
+              <input
+                className="border-2 border-gray-200 text-start w-full h-[5vh] my-2 p-2 rounded-r-md shadow-sm"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your Password"
+              />
+            </div>
           </div>
           <div className="mx-7 my-2">
             <label
@@ -77,9 +85,9 @@ const Page = () => {
           </div>
           <div className="flex justify-center mt-6 w-[90%]">
             <label>
-              Don't have an account?{" "}
+              Don't have an account?
               <span
-                className="text-custom-green cursor-pointer"
+                className="text-custom-green cursor-pointer ml-2"
                 onClick={() => {
                   router.push("/signup");
                 }}

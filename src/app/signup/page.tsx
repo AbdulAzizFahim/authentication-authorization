@@ -5,6 +5,9 @@ import toast from "react-hot-toast";
 import { PropagateLoader } from "react-spinners";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import UsernameIcon from "../components/usernameIcon";
+import PasswordIcon from "../components/passwordIcon";
+import EmailIcon from "../components/emailIcon";
 
 const Page = () => {
   const [username, setUsername] = useState("");
@@ -48,37 +51,50 @@ const Page = () => {
       <div className="bg-slate-50 h-[55vh] w-[30vw] border gap-4 rounded-xl">
         <div className="flex flex-col justify-start w-[100%]">
           <div className="flex justify-center items-center my-9">
-            <label className="font-sans font-bol text-3xl">Login</label>
+            <label className="font-sans font-bol text-3xl">Signup</label>
           </div>
           <div className="flex flex-col items-start w-[90%]">
-            <input
-              className=" border-2 border-gray-200 text-start w-full h-[5vh] mx-6 my-2 p-2 rounded-md shadow-sm"
-              type="text"
-              placeholder="Enter your Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-            <input
-              className=" border-2 border-gray-200 text-start w-full h-[5vh] mx-6 my-2 p-2 rounded-md shadow-sm"
-              type="text"
-              placeholder="Enter your Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <input
-              className=" border-2 border-gray-200 text-start w-full h-[5vh] mx-6 my-2 p-2 rounded-md shadow-sm"
-              type="password"
-              placeholder="Enter your Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <input
-              className=" border-2 border-gray-200 text-start w-full h-[5vh] mx-6 my-2 p-2 rounded-md shadow-sm"
-              type="password"
-              placeholder="Confirm your Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-            />
+            <div className="flex items-start mx-6 w-full">
+              <UsernameIcon />
+              <input
+                className="border-2 border-gray-200 text-start w-full h-[5vh] my-2 p-2 rounded-r-md shadow-sm"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Enter your username"
+              />
+            </div>
+            <div className="flex items-start mx-6 w-full">
+              <EmailIcon />
+              <input
+                className="border-2 border-gray-200 text-start w-full h-[5vh] my-2 p-2 rounded-r-md shadow-sm"
+                type="password"
+                value={password}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+              />
+            </div>
+
+            <div className="flex items-start mx-6 w-full">
+              <PasswordIcon />
+              <input
+                className="border-2 border-gray-200 text-start w-full h-[5vh] my-2 p-2 rounded-r-md shadow-sm"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+              />
+            </div>
+            <div className="flex items-start mx-6 w-full">
+              <PasswordIcon />
+              <input
+                className="border-2 border-gray-200 text-start w-full h-[5vh] my-2 p-2 rounded-r-md shadow-sm"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirm your password"
+              />
+            </div>
           </div>
           <div className="flex justify-start">
             <button
@@ -92,12 +108,12 @@ const Page = () => {
             <label>
               Already have an account?
               <span
-                className="text-custom-green cursor-pointer"
+                className="text-custom-green cursor-pointer ml-2"
                 onClick={() => {
                   router.push("/login");
                 }}
               >
-                Signup
+                Login
               </span>
             </label>
           </div>
