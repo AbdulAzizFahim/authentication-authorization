@@ -1,8 +1,8 @@
 import UserDb from "@/dbModels/User";
-import connectToMongoDb from "@/helpers/dbConnect";
-import sendEmail from "@/helpers/emailSender";
-import { generateHashToken } from "@/helpers/hashHelper";
-import { isUserExists } from "@/helpers/loginValidator";
+import connectToMongoDb from "@/utility/dbConnect";
+import sendEmail from "@/utility/emailSender";
+import { generateHashToken } from "@/utility/hashHelper";
+import { isUserExists } from "@/utility/loginValidator";
 import EmailData from "@/models/EmailData";
 import moment from "moment";
 import { NextRequest, NextResponse } from "next/server";

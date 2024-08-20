@@ -1,10 +1,10 @@
 import UserDb from "@/dbModels/User";
 import { NextRequest, NextResponse } from "next/server";
 import moment from "moment";
-import { generateHashToken } from "@/helpers/hashHelper";
+import { generateHashToken } from "@/utility/hashHelper";
 import EmailData from "@/models/EmailData";
-import sendEmail from "@/helpers/emailSender";
-import connectToMongoDb from "@/helpers/dbConnect";
+import sendEmail from "@/utility/emailSender";
+import connectToMongoDb from "@/utility/dbConnect";
 
 enum verificationType {
   verifyEmail = "verifyEmail",

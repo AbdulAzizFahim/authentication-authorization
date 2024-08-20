@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import User from "@/models/User";
-import { isValidEmail } from "@/helpers/loginValidator";
-import { checkUserLoginCredentials } from "@/helpers/loginValidator";
+import { isValidEmail } from "@/utility/loginValidator";
+import { checkUserLoginCredentials } from "@/utility/loginValidator";
 import UserDb from "@/dbModels/User";
-import { generateHashToken } from "@/helpers/hashHelper";
+import { generateHashToken } from "@/utility/hashHelper";
 import EmailData from "@/models/EmailData";
-import sendEmail from "@/helpers/emailSender";
-import connectToMongoDb from "@/helpers/dbConnect";
+import sendEmail from "@/utility/emailSender";
+import connectToMongoDb from "@/utility/dbConnect";
 import moment from "moment";
 
 export async function POST(req: NextRequest) {

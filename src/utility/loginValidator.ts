@@ -3,11 +3,6 @@ import UserLogin from "@/models/UserLoginInfo";
 import UserDb from "@/dbModels/User";
 import { comparePassword } from "./hashHelper";
 
-const isValidEmail = (email: string): boolean => {
-  const emailRegex: RegExp = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  return emailRegex.test(email);
-};
-
 const checkUserLoginCredentials = async (userData: User): Promise<UserLogin> => {
   const selectedUser = await isUserExists(userData.email);
   if (selectedUser == null) {
@@ -27,4 +22,4 @@ const isUserExists = async (email: string) => {
   return user;
 };
 
-export { isValidEmail, checkUserLoginCredentials, isUserExists };
+export {checkUserLoginCredentials, isUserExists };
