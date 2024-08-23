@@ -8,31 +8,32 @@ import { useRouter } from "next/navigation";
 import UsernameIcon from "../components/usernameIcon";
 import PasswordIcon from "../components/passwordIcon";
 import EmailIcon from "../components/emailIcon";
+import { ISignupData } from "@/models/Authentication";
+import { isSignupFormValid } from "@/utility/fontend/signupFormCheck";
 
 const Page = () => {
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [signupData, setSignupData] = useState<ISignupData>({
+    Username: "",
+    Email: "",
+    Password: "",
+    ConfirmPassword: "",
+  });
+
   const [click, setClick] = useState(false);
   const router = useRouter();
 
   const handleClick = async () => {
     setClick(true);
-    if (password !== confirmPassword) {
-      toast.error("The password and confirm password fields must match");
+    const { isValid, validMessage } = isSignupFormValid(signupData);
+    if (!isValid) {
+      toast.error(validMessage);
       setClick(false);
       return;
     }
 
     try {
       const link: string = "/api/signup";
-      const data = {
-        email: email,
-        password: password,
-        username: username,
-      };
-      const response = await axios.post(link, data);
+      const response = await axios.post(link, signupData);
       const { isAuthenticated, message } = response.data;
       if (isAuthenticated) {
         toast.success(message);
@@ -59,8 +60,8 @@ const Page = () => {
               <input
                 className="border-2 border-gray-200 text-start w-full h-[5vh] my-2 p-2 rounded-r-md shadow-sm"
                 type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                value={signupData.Username}
+                onChange={(e) => setSignupData({ ...signupData, Username: e.target.value })}
                 placeholder="Enter your username"
               />
             </div>
@@ -69,8 +70,8 @@ const Page = () => {
               <input
                 className="border-2 border-gray-200 text-start w-full h-[5vh] my-2 p-2 rounded-r-md shadow-sm"
                 type="password"
-                value={password}
-                onChange={(e) => setEmail(e.target.value)}
+                value={signupData.Email}
+                onChange={(e) => setSignupData({ ...signupData, Email: e.target.value })}
                 placeholder="Enter your email"
               />
             </div>
@@ -80,8 +81,8 @@ const Page = () => {
               <input
                 className="border-2 border-gray-200 text-start w-full h-[5vh] my-2 p-2 rounded-r-md shadow-sm"
                 type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={signupData.Password}
+                onChange={(e) => setSignupData({ ...signupData, Password: e.target.value })}
                 placeholder="Enter your password"
               />
             </div>
@@ -90,8 +91,8 @@ const Page = () => {
               <input
                 className="border-2 border-gray-200 text-start w-full h-[5vh] my-2 p-2 rounded-r-md shadow-sm"
                 type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                value={signupData.ConfirmPassword}
+                onChange={(e) => setSignupData({ ...signupData, ConfirmPassword: e.target.value })}
                 placeholder="Confirm your password"
               />
             </div>

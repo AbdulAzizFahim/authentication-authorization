@@ -1,26 +1,35 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import axios from "axios";
-import toast from "react-hot-toast";
-import PropagateLoader from "react-spinners/PropagateLoader";
-import { useRouter } from "next/navigation";
-import UsernameIcon from "../components/usernameIcon";
-import PasswordIcon from "../components/passwordIcon";
+import React, { useState } from 'react';
+import axios from 'axios';
+import toast from 'react-hot-toast';
+import PropagateLoader from 'react-spinners/PropagateLoader';
+import { useRouter } from 'next/navigation';
+import UsernameIcon from '../components/usernameIcon';
+import PasswordIcon from '../components/passwordIcon';
+import isLoginFormValid from '../../../utility/fontend/loginFormCheck';
+import { ILoginData } from '@/models/Authentication';
 
 const Page = () => {
+  const [loginData, setLoginData] = useState<ILoginData>({
+    Email: '',
+    Password: '',
+  });
   const [click, setClick] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const router = useRouter();
 
   const handleClick = async () => {
+    const { isValid, validMessage } = isLoginFormValid(loginData);
+    if (!isValid) {
+      toast.error(validMessage);
+      return;
+    }
+
     setClick(true);
-    const data = { email: email, password: password };
     try {
-      const response = await axios.post("/api/login", data);
+      const response = await axios.post('/api/login', loginData);
       if (!response) {
-        toast.error("Can not connect to server");
+        toast.error('Can not connect to server');
       }
       const { isVerified, isTokenSent, message } = response.data;
       if (isVerified) {
@@ -28,10 +37,12 @@ const Page = () => {
       } else {
         toast.error(message);
       }
-    } catch (error) {
+    }
+    catch (error) {
       console.log(error);
-      toast.error("Can not connect to server");
-    } finally {
+      toast.error('Can not connect to server');
+    }
+    finally {
       setClick(false);
     }
   };
@@ -49,8 +60,8 @@ const Page = () => {
               <input
                 className="border-2 border-gray-200 text-start w-full h-[5vh] my-2 p-2 rounded-r-md shadow-sm"
                 type="text"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={loginData.Email}
+                onChange={(e) => setLoginData({ ...loginData, Email: e.target.value })}
                 placeholder="Enter your Email"
               />
             </div>
@@ -59,8 +70,8 @@ const Page = () => {
               <input
                 className="border-2 border-gray-200 text-start w-full h-[5vh] my-2 p-2 rounded-r-md shadow-sm"
                 type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={loginData.Password}
+                onChange={(e) => setLoginData({ ...loginData, Password: e.target.value })}
                 placeholder="Enter your Password"
               />
             </div>
@@ -69,7 +80,7 @@ const Page = () => {
             <label
               className=" text-custom-green cursor-pointer"
               onClick={() => {
-                router.push("/forget-password");
+                router.push('/forget-password');
               }}
             >
               Forgot password?
@@ -80,7 +91,7 @@ const Page = () => {
               className="bg-custom-green w-[90%] h-[5vh] flex justify-center items-center mx-6 rounded-md shadow-md text-slate-200 cursor-pointer"
               onClick={handleClick}
             >
-              {click ? <PropagateLoader size={15} color={"#7dd87d"} /> : "Login"}
+              {click ? <PropagateLoader size={15} color={'#7dd87d'} /> : 'Login'}
             </button>
           </div>
           <div className="flex justify-center mt-6 w-[90%]">
@@ -89,7 +100,7 @@ const Page = () => {
               <span
                 className="text-custom-green cursor-pointer ml-2"
                 onClick={() => {
-                  router.push("/signup");
+                  router.push('/signup');
                 }}
               >
                 Signup

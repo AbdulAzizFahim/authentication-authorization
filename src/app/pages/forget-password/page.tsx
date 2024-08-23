@@ -5,6 +5,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import PropagateLoader from "react-spinners/PropagateLoader";
 import { useRouter } from "next/navigation";
+import isValidEmail from "@/utility/shared/validators";
 
 const Page = () => {
   const [click, setClick] = useState(false);
@@ -14,22 +15,30 @@ const Page = () => {
 
   const handleClick = async () => {
     setClick(true);
+    if (!isValidEmail(email)) {
+      toast.error("Invalid email address!");
+      setClick(false);
+    }
+
     const data = { email: email };
     try {
       const response = await axios.post("/api/forget-password", data);
       if (!response) {
         toast.error("Can not connect to server");
       }
-      const { isLinkSent, hasError } = response.data;
-      if (hasError) {
+      const { isLinkSent } = response.data;
+      if (!isLinkSent) {
         toast.error("Unable to send reset password email. Please try again later.");
-      } else {
+      }
+      else {
         setEmailSent(true);
       }
-    } catch (error) {
+    }
+    catch (error) {
       console.log(error);
       toast.error("Can not connect to server");
-    } finally {
+    }
+    finally {
       setClick(false);
     }
   };

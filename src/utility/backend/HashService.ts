@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-const generateHashToken = async (data: string): Promise<string> => {
+const generateHash = async (data: string): Promise<string> => {
   try {
     const rounds: number = 10;
     const hashedToken = await bcrypt.hash(data, rounds);
@@ -20,17 +20,15 @@ const comparePassword = async (plainText: string, hashedText: string) => {
   }
 };
 
-const generateJwtToken = async (userEmail: string): Promise<string | null> => {
+const generateJwtToken = async (userEmail: string): Promise<string> => {
   try {
     const token = await jwt.sign({ email: userEmail }, process.env.SECRET_TOKEN!, {
       expiresIn: "2h",
     });
-
     return token;
   } catch (error) {
-    console.log("Can not generate token!");
-    return null;
+    throw new Error("Can not generate token!");
   }
 };
 
-export { generateHashToken, comparePassword, generateJwtToken };
+export { generateHash, comparePassword, generateJwtToken };

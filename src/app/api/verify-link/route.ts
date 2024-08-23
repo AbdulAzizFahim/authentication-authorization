@@ -1,107 +1,64 @@
 import UserDb from "@/dbModels/User";
-import { NextRequest, NextResponse } from "next/server";
+import { verificationType } from "@/models/Authentication";
+import {
+  dbUpdateEmailVerifyToken,
+  isResetPasswordTokenExists,
+  setUserVerified
+} from "@/utility/backend/DbService";
+import { createAndSendVerifyEmailMail } from "@/utility/backend/EmailService";
+import { generateHash } from "@/utility/backend/HashService";
 import moment from "moment";
-import { generateHashToken } from "@/utility/hashHelper";
-import EmailData from "@/models/EmailData";
-import sendEmail from "@/utility/emailSender";
-import connectToMongoDb from "@/utility/dbConnect";
-
-enum verificationType {
-  verifyEmail = "verifyEmail",
-  forgetPassword = "forgetPassword",
-}
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const token: string = url.searchParams.get("token") ?? "";
   const type: string = url.searchParams.get("type") ?? "";
   if (!token || !type) {
-    return NextResponse.json(
-      {
-        isVerified: false,
-        message: "Invalid link",
-      },
-      { status: 500 }
-    );
+    return NextResponse.json({ isVerified: false, message: "Invalid link" });
   }
 
   switch (type) {
     case verificationType.verifyEmail:
       const verifyEmailResult: [boolean, string] = await verifyEmail(token);
-      return NextResponse.json(
-        {
-          isVerified: verifyEmailResult[0],
-          message: verifyEmailResult[1],
-        },
-        { status: 200 }
-      );
+      return NextResponse.json({ isVerified: verifyEmailResult[0], message: verifyEmailResult[1] });
     case verificationType.forgetPassword:
       const verifyForgetPassowordResult: [boolean, string] = await verifyForgetPassoword(token);
-      return NextResponse.json(
-        {
-          isVerified: verifyForgetPassowordResult[0],
-          message: verifyForgetPassowordResult[1],
-        },
-        { status: 200 }
-      );
+      return NextResponse.json({ isVerified: verifyForgetPassowordResult[0], message: verifyForgetPassowordResult[1] });
     default:
-      return NextResponse.json(
-        {
-          isVerified: false,
-          message: "Invalid link",
-        },
-        { status: 500 }
-      );
+      return NextResponse.json({ isVerified: false, message: "Invalid link" });
   }
 }
 
-const verifyEmail = async (token: string): Promise<[boolean, string]> => {
-  await connectToMongoDb();
-  const user = await UserDb.findOne({ email_verify_token: token });
+const verifyEmail = async (currentToken: string): Promise<[boolean, string]> => {
+  const user = await UserDb.findOne({ email_verify_token: currentToken });
   if (!user) {
     return [false, "Invalid link"];
-  } else if (user.is_verified) {
+  }
+  else if (user.is_verified) {
     return [false, "Email already verified!"];
   }
   const expiryDate: Date = user.token_expiry_date;
   const todaysDate: Date = moment.utc().toDate();
+  const email: string = user.email;
   if (expiryDate < todaysDate) {
-    const newToken: string = await generateHashToken(user.email);
-    const emailData: EmailData = {
-      to: user.email,
-      subject: "Email verification",
-      text: "Click the following link for email verfication.",
-      html: `Click the following link for email verfication.
-              <br> 
-              <a href="http://localhost:3000/verify-link-page?token=${newToken}"> 
-                Click Me 
-              </a>
-              `,
-    };
-
+    const newToken: string = await generateHash(email);
     const expiryDuration = parseInt(process.env.EMAIL_VERIFY_TOKEN_EXPIRY_HOUR!);
     const expiryDateTime = moment().utc().add(expiryDuration, "hours").toDate();
-    await UserDb.updateOne(
-      { email: user.email },
-      { $set: { email_verify_token: token, token_expiry_date: expiryDateTime } }
-    );
-
-    await sendEmail(emailData);
-
+    await Promise.all([
+      dbUpdateEmailVerifyToken(email, newToken, expiryDateTime),
+      createAndSendVerifyEmailMail(email, newToken)
+    ]);
     return [false, "Email verification link expired. Sent new verification email."];
   }
 
-  user.is_verified = true;
-  user.email_verify_token = null;
-  user.token_expiry_date = null;
-  await user.save();
-
+  await setUserVerified(user);
   return [true, "Verification successful!"];
 };
 
 const verifyForgetPassoword = async (token: string): Promise<[boolean, string]> => {
-  connectToMongoDb();
-  const user = await UserDb.findOne({ reset_password_token: token });
+
+  const user = await isResetPasswordTokenExists(token);
   if (!user) {
     return [false, "Invalid link"];
   }
@@ -110,11 +67,6 @@ const verifyForgetPassoword = async (token: string): Promise<[boolean, string]> 
   if (expiryDate < todaysDate) {
     return [false, "Reset password link expired"];
   }
-
-  user.is_verified = true;
-  user.token_expiry_date = null;
-  user.reset_password_token = null;
-  await user.save();
 
   return [true, "Verification successful!"];
 };
