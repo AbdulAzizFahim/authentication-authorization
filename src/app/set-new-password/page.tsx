@@ -25,12 +25,12 @@ const Page = () => {
 
     const loadingDiv = (
         <div className="flex justify-center items-center my-9">
-            <label className="font-sans font-bol text-3xl">Loading...</label>
+            <label className="font-sans font-bol text-3xl text-center">Loading...</label>
         </div>
     );
 
     const passwordResetDiv = (
-        <div className="w-[90%] h-[5vh] bg-bg-notice-green text-start mx-6 my-2 p-2 rounded-md shadow-sm border-2">
+        <div className="w-[90%] h-[5vh] bg-bg-notice-green text-center mx-6 my-2 p-2 rounded-md shadow-sm border-2">
             Password has been reset successfully.
         </div>
     );
@@ -50,12 +50,12 @@ const Page = () => {
 
     return (
         <div className=" flex justify-center items-center h-screen w-screen bg-custom-green">
-            <div className="bg-slate-50 h-[55vh] w-[30vw] border gap-4 rounded-xl">
+            <div className="bg-slate-50 h-fit w-[30vw] border gap-4 rounded-xl">
                 {
                     data.token === "" ? loadingDiv : (
                         reset ? passwordResetDiv : <div className="flex flex-col justify-start w-[100%]">
                             <div className="flex justify-center items-center my-9">
-                                <label className="font-sans font-bol text-3xl">Create new Password</label>
+                                <label className="font-sans font-bol text-3xl">Create new password</label>
                             </div>
                             <div className="flex flex-col items-start w-[90%]">
                                 <div className="flex items-start mx-6 w-full">
@@ -65,7 +65,7 @@ const Page = () => {
                                         type="password"
                                         value={data.password}
                                         onChange={(e) => setData({ ...data, password: e.target.value })}
-                                        placeholder="Enter your password"
+                                        placeholder="Enter new password"
                                     />
                                 </div>
                                 <div className="flex items-start mx-6 w-full">
@@ -75,13 +75,13 @@ const Page = () => {
                                         type="password"
                                         value={data.confirmPassword}
                                         onChange={(e) => setData({ ...data, confirmPassword: e.target.value })}
-                                        placeholder="Confirm your password"
+                                        placeholder="Confirm new password"
                                     />
                                 </div>
                             </div>
                             <div className="flex justify-start">
                                 <button
-                                    className="bg-custom-green w-[90%] h-[5vh] mx-6 rounded-md shadow-md text-slate-200 cursor-pointer"
+                                    className="bg-custom-green w-[90%] h-[5vh] m-6 rounded-md shadow-md text-slate-200 cursor-pointer"
                                     onClick={handleClick}
                                 >
                                     {click ? <PropagateLoader size={15} color={"#7dd87d"} /> : "Submit"}

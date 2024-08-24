@@ -119,5 +119,5 @@ export {
   createNewUser,
   dbUpdateForgetPasswordToken,
   isResetPasswordTokenExists,
-  setUserVerified
+  setUserVerified,
 };

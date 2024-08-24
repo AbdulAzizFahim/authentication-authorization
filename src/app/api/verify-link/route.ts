@@ -49,11 +49,11 @@ const verifyEmail = async (currentToken: string): Promise<[boolean, string]> => 
       dbUpdateEmailVerifyToken(email, newToken, expiryDateTime),
       createAndSendVerifyEmailMail(email, newToken)
     ]);
-    return [false, "Email verification link expired. Sent new verification email."];
+    return [false, "Email verification link expired. Sent a new verification email."];
   }
 
   await setUserVerified(user);
-  return [true, "Verification successful!"];
+  return [true, "Verification successful, redirecting to login page..."];
 };
 
 const verifyForgetPassoword = async (token: string): Promise<[boolean, string]> => {
@@ -68,5 +68,5 @@ const verifyForgetPassoword = async (token: string): Promise<[boolean, string]> 
     return [false, "Reset password link expired"];
   }
 
-  return [true, "Verification successful!"];
+  return [true, "Verification successful"];
 };

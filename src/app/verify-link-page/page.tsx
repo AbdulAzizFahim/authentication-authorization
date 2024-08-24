@@ -37,6 +37,7 @@ const Page = () => {
   const link: string = `api/verify-link?token=${token}&type=${type}`;
   let typeMessage: string = "";
   let buttonLabel: string = "";
+
   if (type === "verifyEmail") {
     typeMessage = "Verify your email";
     buttonLabel = "Verify";
@@ -51,6 +52,13 @@ const Page = () => {
       const response = await axios.get(link);
       const { isVerified, message } = response.data;
       setStatus(message);
+      if (isVerified) {
+        if (type === "verifyEmail")
+          setTimeout(() => { router.push('/login') }, 2000);
+        else {
+          router.push(`/set-new-password?token=${token}`);
+        }
+      }
     } catch (error) {
       setStatus("Can not validate link, Try again later.");
     }
@@ -75,7 +83,7 @@ const Page = () => {
           ) : (
             <div className="flex flex-col items-center w-full ">
               <div className="flex items-center my-5">
-                <label className="font-sans font-bol text-3xl bg-slate-200 p-2 ">{message}</label>
+                <label className="font-sans font-bol text-3xl bg-slate-200 p-2 text-center">{message}</label>
               </div>
               <button
                 className="bg-custom-green w-[40%] h-[5vh] my-3 mx-6 rounded-md shadow-md text-slate-200 cursor-pointer"

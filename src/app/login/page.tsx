@@ -7,7 +7,7 @@ import PropagateLoader from 'react-spinners/PropagateLoader';
 import { useRouter } from 'next/navigation';
 import UsernameIcon from '../components/usernameIcon';
 import PasswordIcon from '../components/passwordIcon';
-import isLoginFormValid from '../../../utility/fontend/loginFormCheck';
+import isLoginFormValid from '../../utility/fontend/loginFormCheck';
 import { ILoginData } from '@/models/Authentication';
 
 const Page = () => {

@@ -54,12 +54,13 @@ const createAndSendVerifyEmailMail = async (email: string, token: string) => {
     throw new Error('Incorect parameters!');
   }
   try {
+    const domain: string = process.env.DOMAIN!;
     const emailData: EmailData = {
       to: email,
       subject: 'Signup email verification',
       html: `"Click the following link for email verfication."
       <br> 
-        <a href="http://localhost:3000/verify-link-page?token=${token}&type=verifyEmail">
+        <a href="${domain}/verify-link-page?token=${token}&type=verifyEmail">
             Click Me 
         </a>
         `,
@@ -76,12 +77,13 @@ const createAndSendResetPasswordMail = async (email: string, token: string): Pro
     throw new Error('Incorect parameters!');
   }
   try {
+    const domain: string = process.env.DOMAIN!;
     const emailData: EmailData = {
       to: email,
       subject: "Reset account password",
       html: `"Click the following link to reset your password."
     <br> 
-    <a href="http://localhost:3000/verify-link-page?token=${token}&type=forgetPassword">
+    <a href="${domain}/verify-link-page?token=${token}&type=forgetPassword">
         Click Me 
     </a>
     `,

@@ -1,9 +1,8 @@
 import { ISignupData } from "@/models/Authentication";
-import { createNewUser } from "@/utility/backend/DbService";
+import { createNewUser, isUserExists } from "@/utility/backend/DbService";
 import { sendVerificationEmailAndUpdateDb } from "@/utility/backend/EmailService";
 import { createAndSendVerifyEmailMail } from "@/utility/backend/EmailService";
-import { generateHash } from "@/utility/backend/HashService";
-import { checkUserLoginCredentials } from "@/utility/backend/LoginValidator";
+import { comparePassword, generateHash } from "@/utility/backend/HashService";
 import isValidEmail from "@/utility/shared/validators";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -29,23 +28,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ isAuthenticated: false, message: "Invalid email format!" });
   }
   try {
-    const userInfo = await checkUserLoginCredentials(signupData);
-    if (!userInfo.isUserFound) {
+    const userInfo = await isUserExists(signupData.Email);
+    if (!userInfo) {
       const token: string = await generateHash(Email);
       await createNewUser(signupData, token);
       await createAndSendVerifyEmailMail(Email, token);
       return NextResponse.json({ isAuthenticated: true, message: "Signup completed" });
     }
-    else if (!userInfo.isEmailVerified) {
+    const isPasswordMatched = await comparePassword(signupData.Password, userInfo.password);
+    if (isPasswordMatched && !userInfo.isEmailVerified) {
       await sendVerificationEmailAndUpdateDb(Email);
       return NextResponse.json({
         isAuthenticated: true,
         message: "Verification email sent! Please check your email",
       });
     }
-    else {
-      return NextResponse.json({ isAuthenticated: false, message: "User already registered!" });
-    }
+
+    return NextResponse.json({ isAuthenticated: false, message: "User already registered!" });
   }
   catch (error) {
     return NextResponse.json({

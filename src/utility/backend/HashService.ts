@@ -11,7 +11,7 @@ const generateHash = async (data: string): Promise<string> => {
   }
 };
 
-const comparePassword = async (plainText: string, hashedText: string) => {
+const comparePassword = async (plainText: string, hashedText: string): Promise<boolean> => {
   try {
     const isMatch = await bcrypt.compare(plainText, hashedText);
     return isMatch;

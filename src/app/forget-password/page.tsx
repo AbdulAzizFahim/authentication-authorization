@@ -4,20 +4,20 @@ import React, { useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import PropagateLoader from "react-spinners/PropagateLoader";
-import { useRouter } from "next/navigation";
 import isValidEmail from "@/utility/shared/validators";
+import Link from "next/link";
 
 const Page = () => {
   const [click, setClick] = useState(false);
   const [email, setEmail] = useState("");
   const [emailSent, setEmailSent] = useState(false);
-  const router = useRouter();
 
   const handleClick = async () => {
     setClick(true);
     if (!isValidEmail(email)) {
       toast.error("Invalid email address!");
       setClick(false);
+      return;
     }
 
     const data = { email: email };
@@ -27,12 +27,8 @@ const Page = () => {
         toast.error("Can not connect to server");
       }
       const { isLinkSent } = response.data;
-      if (!isLinkSent) {
-        toast.error("Unable to send reset password email. Please try again later.");
-      }
-      else {
-        setEmailSent(true);
-      }
+      setEmailSent(true);
+
     }
     catch (error) {
       console.log(error);
@@ -44,7 +40,7 @@ const Page = () => {
   };
 
   const emailSentDiv = (
-    <div className="w-[90%] h-[5vh] bg-bg-notice-green text-start mx-6 my-2 p-2 rounded-md shadow-sm border-2">
+    <div className="w-[90%] h-[5vh] bg-bg-notice-green text-center mx-6 my-2 p-2 rounded-md shadow-sm border-2">
       We have e-mailed your password reset link if the user exists!
     </div>
   );
@@ -77,14 +73,12 @@ const Page = () => {
           <div className="flex justify-center my-6 w-[90%]">
             <label>
               Don't have an account?{" "}
-              <span
+              <Link
                 className="text-custom-green cursor-pointer"
-                onClick={() => {
-                  router.push("/signup");
-                }}
+                href="/signup"
               >
                 Signup
-              </span>
+              </Link>
             </label>
           </div>
         </div>
