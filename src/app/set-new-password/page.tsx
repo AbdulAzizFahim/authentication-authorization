@@ -21,7 +21,7 @@ const Page = () => {
             router.push('/404');
         }
         setData({ ...data, 'token': token });
-    }, [router, searchParams]);
+    }, [router, searchParams, data]);
 
     const loadingDiv = (
         <div className="flex justify-center items-center my-9">

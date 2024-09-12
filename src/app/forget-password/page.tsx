@@ -72,7 +72,7 @@ const Page = () => {
           </div>
           <div className="flex justify-center my-6 w-[90%]">
             <label>
-              Don't have an account?{" "}
+              Don't have an account?
               <Link
                 className="text-custom-green cursor-pointer"
                 href="/signup"
