@@ -10,6 +10,8 @@ import { generateHash } from "@/utility/backend/HashService";
 import moment from "moment";
 import { NextRequest, NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const token: string = url.searchParams.get("token") ?? "";
@@ -19,14 +21,17 @@ export async function GET(req: NextRequest) {
   }
 
   switch (type) {
-    case verificationType.verifyEmail:
+    case verificationType.verifyEmail: {
       const verifyEmailResult: [boolean, string] = await verifyEmail(token);
       return NextResponse.json({ isVerified: verifyEmailResult[0], message: verifyEmailResult[1] });
-    case verificationType.forgetPassword:
+    }
+    case verificationType.forgetPassword: {
       const verifyForgetPassowordResult: [boolean, string] = await verifyForgetPassoword(token);
       return NextResponse.json({ isVerified: verifyForgetPassowordResult[0], message: verifyForgetPassowordResult[1] });
-    default:
+    }
+    default: {
       return NextResponse.json({ isVerified: false, message: "Invalid link" });
+    }
   }
 }
 

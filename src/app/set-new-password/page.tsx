@@ -11,7 +11,7 @@ import axios from 'axios';
 const Page = () => {
     const [data, setData] = useState({ password: '', confirmPassword: '', token: '' })
     const [click, setClick] = useState(false);
-    const [reset, isReset] = useState(false);
+    const [reset, setReset] = useState(false);
     const searchParams = useSearchParams();
     const router = useRouter();
 

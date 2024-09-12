@@ -31,17 +31,20 @@ const Page = () => {
     }
 
     try {
-      const link: string = "/api/signup";
+      const link = "/api/signup";
       const response = await axios.post(link, signupData);
       const { isAuthenticated, message } = response.data;
       if (isAuthenticated) {
         setEmailSent(true);
-      } else {
+      }
+      else {
         toast.error(message);
       }
-    } catch (error) {
+    }
+    catch (error) {
       toast.error("Can not signup user!");
-    } finally {
+    }
+    finally {
       setClick(false);
     }
   };

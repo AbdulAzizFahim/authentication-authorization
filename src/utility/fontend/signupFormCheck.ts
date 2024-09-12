@@ -2,7 +2,7 @@ import { ISignupData } from "@/models/Authentication";
 import isValidEmail from "@/utility/shared/validators";
 
 const isSignupFormValid = (data: ISignupData): { isValid: boolean; validMessage: string } => {
-  const minUsernameLength: number = 5;
+  const minUsernameLength = 5;
 
   if (data?.Username?.length < minUsernameLength) {
     return { isValid: false, validMessage: "Username has to be at least 5 characters long!" };
@@ -16,7 +16,7 @@ const isSignupFormValid = (data: ISignupData): { isValid: boolean; validMessage:
 
 
 const validatePassword = (password: string | null, confirmPassword: string | null): { isValid: boolean; validMessage: string } => {
-  const minPasswordLength: number = 5;
+  const minPasswordLength = 5;
   if (!password || !confirmPassword) {
     return { isValid: false, validMessage: "Password and confirm password fields are mandatory!" };
   }

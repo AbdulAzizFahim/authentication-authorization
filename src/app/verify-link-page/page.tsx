@@ -34,14 +34,15 @@ const Page = () => {
     setType(type);
   }, [router, searchParams]);
 
-  const link: string = `api/verify-link?token=${token}&type=${type}`;
-  let typeMessage: string = "";
-  let buttonLabel: string = "";
+  const link = `api/verify-link?token=${token}&type=${type}`;
+  let typeMessage = "";
+  let buttonLabel = "";
 
   if (type === "verifyEmail") {
     typeMessage = "Verify your email";
     buttonLabel = "Verify";
-  } else if (type === "forgetPassword") {
+  }
+  else if (type === "forgetPassword") {
     typeMessage = "Reset your password";
     buttonLabel = "Reset";
   }
@@ -54,12 +55,15 @@ const Page = () => {
       setStatus(message);
       if (isVerified) {
         if (type === "verifyEmail")
-          setTimeout(() => { router.push('/login') }, 2000);
+          setTimeout(() => {
+            router.push('/login')
+          }, 2000);
         else {
           router.push(`/set-new-password?token=${token}`);
         }
       }
-    } catch (error) {
+    }
+    catch (error) {
       setStatus("Can not validate link, Try again later.");
     }
   };

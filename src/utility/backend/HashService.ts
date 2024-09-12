@@ -3,10 +3,11 @@ import jwt from "jsonwebtoken";
 
 const generateHash = async (data: string): Promise<string> => {
   try {
-    const rounds: number = 10;
+    const rounds = 10;
     const hashedToken = await bcrypt.hash(data, rounds);
     return hashedToken;
-  } catch (error) {
+  } 
+  catch (error) {
     throw new Error("Error generating hash!");
   }
 };
@@ -15,7 +16,8 @@ const comparePassword = async (plainText: string, hashedText: string): Promise<b
   try {
     const isMatch = await bcrypt.compare(plainText, hashedText);
     return isMatch;
-  } catch (error) {
+  } 
+  catch (error) {
     throw new Error("Error comparing hash!");
   }
 };
@@ -26,7 +28,8 @@ const generateJwtToken = async (userEmail: string): Promise<string> => {
       expiresIn: "2h",
     });
     return token;
-  } catch (error) {
+  } 
+  catch (error) {
     throw new Error("Can not generate token!");
   }
 };

@@ -34,7 +34,8 @@ const Page = () => {
       const { isVerified, isTokenSent, message } = response.data;
       if (isVerified) {
         toast.success(message);
-      } else {
+      }
+      else {
         toast.error(message);
       }
     }
